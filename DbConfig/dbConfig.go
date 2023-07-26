@@ -17,34 +17,36 @@ func GetEnvValues(key string) string {
 	if err != nil {
 		log.Fatal("Error loading .env file", err)
 	}
-	URL:= os.Getenv(key)
+	URL := os.Getenv(key)
 	return URL
 }
 
 func DbConnection() *mongo.Client {
-    client, err := mongo.NewClient(options.Client().ApplyURI(GetEnvValues("DATABASE_URL")))
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-    err = client.Connect(ctx)
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    //ping the database
-    err = client.Ping(ctx, nil)
-    if err != nil {
-        log.Fatal(err)
-    }
-    fmt.Println("Connected to MongoDB================================================================")
-    return client
+	client, err := mongo.NewClient(options.Client().ApplyURI(GetEnvValues("DATABASE_URL")))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//ping the database
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Connected to MongoDB================================================================")
+	return client
 }
-//Client instance
+
+// DB Client instance
 var DB *mongo.Client = DbConnection()
-//getting database collections
+
+// GetCollection getting database collections
 func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
-    collection := DB.Database(GetEnvValues("DATABASE_NAME")).Collection(collectionName)
-    return collection
+	collection := DB.Database(GetEnvValues("DATABASE_NAME")).Collection(collectionName)
+	return collection
 }

@@ -33,6 +33,23 @@ func GetUser(c *gin.Context) {
 	)
 }
 
+func GetAUser(c *gin.Context) {
+	UserId := c.Param("id")
+	var user Models.User
+	response := CommonServices.GetValueById(userCollection, 10, 1, UserId)
+
+	if err := response.Decode(&user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"Status": http.StatusInternalServerError, "Message": "error", "data": map[string]interface{}{"error": err.Error()}})
+		return
+	}
+	if len(user.FirstName) > 0 {
+		c.JSON(http.StatusOK, Responses.UserResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"user": user}})
+		return
+	}
+	c.JSON(http.StatusBadRequest, Responses.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"errMessage": "No data Found"}})
+
+}
+
 func CreateUser(c *gin.Context) {
 	// Handle the POST request for "/user/create"
 	c.JSON(200, gin.H{
@@ -43,6 +60,7 @@ func CreateUser(c *gin.Context) {
 func UpdateUser(c *gin.Context) {
 	// Handle the PUT request for "/user/update/:id"
 	userID := c.Param("id")
+
 	c.JSON(200, gin.H{
 		"message": "Update user with ID: " + userID,
 	})
