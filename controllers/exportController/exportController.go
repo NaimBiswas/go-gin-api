@@ -18,7 +18,10 @@ func ExportToXlsx(c *gin.Context) {
 }
 
 func ExportToCSV(c *gin.Context) {
+	name := c.Param("name")
+	collectionName := dbConfig.GetCollection(dbConfig.DB, name)
 
+	exportServices.ExportToCSV(c, collectionName)
 }
 
 func CSVExportCore() {

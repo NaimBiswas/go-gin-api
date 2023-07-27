@@ -1,4 +1,4 @@
-package exportServices
+package exportRouter
 
 import (
 	"NaimBiswas/go-gin-api/controllers/exportController"

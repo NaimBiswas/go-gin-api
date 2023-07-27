@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"NaimBiswas/go-gin-api/routes/exportServices"
+	"NaimBiswas/go-gin-api/routes/exportRouter"
 	UserRoutes "NaimBiswas/go-gin-api/routes/userRoutes"
 
 	"github.com/gin-gonic/gin"
@@ -9,5 +9,5 @@ import (
 
 func MainRoutes(api *gin.RouterGroup) {
 	UserRoutes.Main(api.Group("/user"))
-	exportServices.Main(api.Group("/export"))
+	exportRouter.Main(api.Group("/export"))
 }

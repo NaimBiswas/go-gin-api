@@ -3,15 +3,18 @@ package exportServices
 import (
 	Models "NaimBiswas/go-gin-api/models"
 	"bytes"
+	"encoding/csv"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jung-kurt/gofpdf"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"io/ioutil"
 	"net/http"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 )
@@ -96,15 +99,12 @@ func ExportToPdf(c *gin.Context, collection *mongo.Collection) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate PDF"})
 		return
 	}
+	fileName := generateFileName(collection.Name(), "pdf")
 
-	timestamp := time.Now().Unix()
-	formattedTimestamp := strings.ReplaceAll(strings.ReplaceAll(fmt.Sprint(timestamp), " ", "_"), ":", "_")
-
-	fileName := collection.Name() + "_" + formattedTimestamp
 	c.Header("Content-Type", "application/pdf")
-	c.Header("Content-Disposition", "attachment; filename="+fileName+".pdf")
+	c.Header("Content-Disposition", "attachment; filename="+fileName)
 	// Write the PDF content to the response
-	err = ioutil.WriteFile("./files/"+fileName+".pdf", buf.Bytes(), 0644)
+	err = ioutil.WriteFile("./files/"+fileName, buf.Bytes(), 0644)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save PDF to local file"})
 		return
@@ -116,6 +116,84 @@ func ExportToXlsx() {
 
 }
 
-func ExportToCSV() {
+func ExportToCSV(c *gin.Context, collection *mongo.Collection) {
+	var result []bson.M
+	sortOptions := options.Find()
+	sortOptions.SetSort(bson.D{{"modifiedAt", -1}})
+	cur, err := collection.Find(c, bson.M{}, sortOptions)
+	if err != nil {
+		errorResponse(c, http.StatusInternalServerError, err, "failed to fetch data from the database")
+		c.Abort()
+		return
+	}
 
+	defer cur.Close(c)
+
+	var data [][]string
+	var headers map[string]bool
+
+	// Read the MongoDB cursor and extract data
+	if err := cur.All(c, &result); err != nil {
+		errorResponse(c, http.StatusForbidden, err, "Something went wrong")
+		return
+	}
+
+	// Extract headers from the first document
+	if len(result) > 0 {
+		headers = make(map[string]bool)
+		for key := range result[len(result)-1] {
+			if !(key == "_id" || key == "__v" || key == "password") {
+				headers[key] = true
+			}
+		}
+	}
+	// Create the CSV header row
+	var headerRow []string
+	for key := range headers {
+		headerRow = append(headerRow, key)
+	}
+	sort.Strings(headerRow)
+	data = append(data, headerRow)
+
+	// Extract values from each document
+	for _, doc := range result {
+		var values []string
+		for key := range doc {
+			for i := 0; i < len(headerRow); i++ {
+				if key == headerRow[i] {
+					if doc[key] == nil {
+						values = append(values, fmt.Sprintf("%v", ""))
+					} else {
+						values = append(values, fmt.Sprintf("%v", doc[headerRow[i]]))
+					}
+				}
+			}
+		}
+		data = append(data, values)
+	}
+	// Convert data to CSV
+	var csvContent strings.Builder
+	writer := csv.NewWriter(&csvContent)
+	fileName := generateFileName(collection.Name(), ".csv")
+	writer.WriteAll(data)
+	writer.Flush()
+
+	csvData := csvContent.String()
+
+	// Set the response headers
+	c.Header("Content-Disposition", "attachment; filename="+fileName)
+	c.Data(http.StatusOK, "text/csv", []byte(csvData))
+}
+
+func generateFileName(name string, extension string) string {
+	timestamp := time.Now().Unix()
+	formattedTimestamp := strings.ReplaceAll(strings.ReplaceAll(fmt.Sprint(timestamp), " ", "_"), ":", "_")
+
+	fileName := name + "_" + formattedTimestamp
+	return fileName + extension
+}
+
+func errorResponse(c *gin.Context, statusCode int, error error, message string) {
+	c.JSON(statusCode, gin.H{"error": error.Error(), "message": message})
+	c.Abort()
 }
