@@ -1,4 +1,6 @@
 /go.sum
 /.env
 /vendor
-/gin-bin.exe~
+# disable the exe build
+/*.exe*
+/files/*

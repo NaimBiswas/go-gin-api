@@ -21,3 +21,18 @@ type User struct {
 	PaymentDetails  any                `json:"paymentDetails"`
 	Role            any                `json:"role"`
 }
+
+type UserColumnsForExport struct {
+	FirstName       string             `json:"firstName" pdfFiled:"First Name"`
+	LastName        string             `json:"lastName" pdfFiled:"Last Name"`
+	Email           string             `json:"email" pdfFiled:"Email"`
+	Role            string             `json:"role" pdfFiled:"Role"`
+	PaymentDetails  []string           `json:"paymentDetails" pdfFiled:"Payment Details"`
+	CreatedAt       primitive.DateTime `json:"createdAt" pdfFiled:"Created At"`
+	UpdatedAt       primitive.DateTime `json:"updatedAt" pdfFiled:"Updated At"`
+	AcStatus        string             `json:"acStatus" pdfFiled:"Account Status"`
+	IsActive        bool               `json:"isActive" pdfFiled:"Is Active"`
+	IsBlocked       bool               `json:"isBlocked" pdfFiled:"Is Blocked"`
+	IsDeleted       bool               `json:"isDeleted" pdfFiled:"Is Deleted"`
+	IsEmailVerified bool               `json:"isEmailVerified" pdfFiled:"Is EmailVerified"`
+}
