@@ -13,10 +13,14 @@ func ExportToPdf(c *gin.Context) {
 	exportServices.ExportToPdf(c, collectionName)
 }
 
-func ExportToXlsx() {
+func ExportToXlsx(c *gin.Context) {
 
 }
 
-func ExportToCSV() {
+func ExportToCSV(c *gin.Context) {
+
+}
+
+func CSVExportCore() {
 
 }
