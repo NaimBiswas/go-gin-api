@@ -2,13 +2,19 @@ package CommonServices
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+type User struct {
+	Email string `bson:"email" json:"email"`
+}
 
 func GetValues(collection *mongo.Collection, pageSize int, pageNumber int) (*mongo.Cursor, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -37,4 +43,30 @@ func getPagination(pageSize int, pageNumber int) *options.FindOptions {
 	// Define the options for the query
 	findOptions := options.Find().SetLimit(int64(pageSize)).SetSkip(int64(skip))
 	return findOptions
+}
+
+func GetUserMails(c *gin.Context, collection *mongo.Collection) []string {
+
+	// Set up options to include the projection
+	projection := bson.M{"email": 1}
+	findOptions := options.Find().SetProjection(projection)
+
+	result, err := collection.Find(c, bson.M{}, findOptions)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong to find the data", "error": err.Error()})
+	}
+	//defer result.Close(c)
+	var emails []string
+
+	// Iterate through the cursor and extract the email addresses
+	for result.Next(c) {
+		var user User
+		err := result.Decode(&user)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong", "error": err.Error()})
+		}
+		emails = append(emails, user.Email)
+	}
+	return emails
 }

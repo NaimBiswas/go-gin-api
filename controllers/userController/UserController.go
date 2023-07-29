@@ -1,4 +1,4 @@
-package UserController
+package userController
 
 import (
 	dbConfig "NaimBiswas/go-gin-api/DbConfig"

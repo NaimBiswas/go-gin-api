@@ -21,7 +21,10 @@ type User struct {
 	PaymentDetails  any                `json:"paymentDetails"`
 	Role            any                `json:"role"`
 }
-
+type IResponse struct {
+	Message string `json:"message"`
+	Details string `json:"details"`
+}
 type UserColumnsForExport struct {
 	FirstName       string             `json:"firstName" pdfFiled:"First Name"`
 	LastName        string             `json:"lastName" pdfFiled:"Last Name"`
