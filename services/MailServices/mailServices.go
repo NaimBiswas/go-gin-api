@@ -36,7 +36,9 @@ func configureSMTP(subject string, to []string, path string) (Models.IResponse, 
 	if err != nil {
 		fmt.Println("Error loading email template:", err)
 	}
-	message := []byte(subject + mime + body)
+	// Prepare the email headers and body
+	headers := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\n%s\r\n", from, strings.Join(to, ", "), subject, mime)
+	message := []byte(headers + "\r\n" + body)
 
 	err = smtp.SendMail(serverAddr, auth, from, to, message)
 	if err != nil {
@@ -48,6 +50,7 @@ func configureSMTP(subject string, to []string, path string) (Models.IResponse, 
 		Details: "mail Sent to flowing mails " + strings.Join(to, ", "),
 	}, nil
 }
+
 func loadHTMLFile(filename string) (string, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
