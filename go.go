@@ -14,7 +14,7 @@ var app *gin.Engine
 
 func main() {
 	fmt.Println("Hello Gin World!")
-
+	app = gin.New()
 	Router := gin.Default()
 
 	api := Router.Group("/api")
