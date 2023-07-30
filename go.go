@@ -4,10 +4,13 @@ import (
 	dbConfig "NaimBiswas/go-gin-api/DbConfig"
 	"NaimBiswas/go-gin-api/routes"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 )
+
+var app *gin.Engine
 
 func main() {
 	fmt.Println("Hello Gin World!")
@@ -27,4 +30,8 @@ func main() {
 		port = "3001"
 	}
 	Router.Run(":" + port)
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	app.ServeHTTP(w, r)
 }

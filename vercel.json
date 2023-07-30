@@ -1,20 +1,6 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "go.go",
-        "use": "@vercel/go"
-      }, 
-      {
-        "env": {
-          "GO_BUILD_FLAGS": "-ldflags '-s -w'"
-        }
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "/go.go"
-      }
+    "trailingSlash": true,
+    "rewrites": [
+        {"source": "/(.*)", "destination": "/go.go"}
     ]
   }
