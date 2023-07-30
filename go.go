@@ -15,12 +15,12 @@ var app *gin.Engine
 func main() {
 	fmt.Println("Hello Gin World!")
 	app = gin.New()
-	// Router := gin.Default()
+	Router := gin.Default()
 
-	api := app.Group("/api")
+	api := Router.Group("/api")
 	routes.MainRoutes(api)
 
-	app.GET("/", func(c *gin.Context) {
+	Router.GET("/", func(c *gin.Context) {
 		c.JSON(200, "Welcome to gin world")
 	})
 
@@ -29,7 +29,7 @@ func main() {
 	if port == "" {
 		port = "3001"
 	}
-	app.Run(":" + port)
+	Router.Run(":" + port)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
