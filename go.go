@@ -23,7 +23,9 @@ func main() {
 	Router.GET("/", func(c *gin.Context) {
 		c.JSON(200, "Welcome to gin world")
 	})
-
+	app.GET("/check", func(c *gin.Context) {
+		c.JSON(200, "Welcome to gin world : check)")
+	})
 	dbConfig.DbConnection()
 	port := os.Getenv("PORT")
 	if port == "" {
