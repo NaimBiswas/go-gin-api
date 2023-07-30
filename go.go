@@ -29,7 +29,7 @@ func main() {
 	if port == "" {
 		port = "3001"
 	}
-	Router.Run(":" + port)
+	// app.Run(":" + port)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
