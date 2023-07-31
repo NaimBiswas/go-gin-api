@@ -3,7 +3,6 @@ package exportServices
 import (
 	Models "NaimBiswas/go-gin-api/models"
 	"bytes"
-	"encoding/csv"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -18,7 +17,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func ExportToPdf(c *gin.Context, collection *mongo.Collection) {
@@ -121,9 +119,9 @@ func ExportToXlsx() {
 
 func ExportToCSV(c *gin.Context, collection *mongo.Collection) {
 	var result []bson.M
-	sortOptions := options.Find()
-	sortOptions.SetSort(bson.D{{"modifiedAt", -1}})
-	cur, err := collection.Find(c, bson.M{}, sortOptions)
+	// sortOptions := options.Find()
+	// sortOptions.SetSort(bson.D{{"modifiedAt", -1}})
+	cur, err := collection.Find(c, bson.M{})
 	if err != nil {
 		errorResponse(c, http.StatusInternalServerError, err, "failed to fetch data from the database")
 		c.Abort()
@@ -132,7 +130,7 @@ func ExportToCSV(c *gin.Context, collection *mongo.Collection) {
 
 	defer cur.Close(c)
 
-	var data [][]string
+	var data []string
 	var headers map[string]bool
 
 	// Read the MongoDB cursor and extract data
@@ -144,9 +142,11 @@ func ExportToCSV(c *gin.Context, collection *mongo.Collection) {
 	// Extract headers from the first document
 	if len(result) > 0 {
 		headers = make(map[string]bool)
-		for key := range result[len(result)-1] {
-			if !(key == "_id" || key == "__v" || key == "password") {
-				headers[key] = true
+		for _, value := range result {
+			for key := range value {
+				if !(key == "_id" || key == "__v" || key == "password") {
+					headers[key] = true
+				}
 			}
 		}
 	}
@@ -156,35 +156,45 @@ func ExportToCSV(c *gin.Context, collection *mongo.Collection) {
 		headerRow = append(headerRow, key)
 	}
 	sort.Strings(headerRow)
-	data = append(data, headerRow)
+	data = append(data, strings.Join(headerRow, ","))
 
 	// Extract values from each document
 	for _, doc := range result {
 		var values []string
-		for key := range doc {
-			for i := 0; i < len(headerRow); i++ {
-				if key == headerRow[i] {
-					if doc[key] == nil {
-						values = append(values, fmt.Sprintf("%v", ""))
-					} else {
-						values = append(values, fmt.Sprintf("%v", doc[headerRow[i]]))
-					}
+		for _, header := range headerRow {
+			value := doc[header]
+
+			if value == nil || fmt.Sprintf("%v", value) == "[]" {
+				value = " "
+
+			} else if header == "createdAt" || header == "updatedAt" {
+
+				if val, ok := value.(primitive.DateTime); ok {
+
+					// Convert the primitive.DateTime to a time.Time object
+					parsedDate := time.Unix(int64(val)/1000, 0)
+
+					// Format the time.Time object to the desired format "DD/MM/YYYY"
+					value = fmt.Sprintf("%v", parsedDate.Format("02/01/2006 15:04:05.000"))
 				}
 			}
+			values = append(values, fmt.Sprintf("%v", value))
 		}
-		data = append(data, values)
+		data = append(data, strings.Join(values, ","))
 	}
-	// Convert data to CSV
-	var csvContent strings.Builder
-	writer := csv.NewWriter(&csvContent)
-	fileName := generateFileName(collection.Name(), ".csv")
-	writer.WriteAll(data)
-	writer.Flush()
 
-	csvData := csvContent.String()
+	// Convert data to CSV
+	csvData := strings.Join(data, "\n")
 
 	// Set the response headers
+	fileName := generateFileName(collection.Name(), ".csv")
 	c.Header("Content-Disposition", "attachment; filename="+fileName)
+	err = ioutil.WriteFile("./files/"+fileName, []byte(csvData), 0644)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to save CSV to local file"})
+		return
+	}
+
 	c.Data(http.StatusOK, "text/csv", []byte(csvData))
 }
 
