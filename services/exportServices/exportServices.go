@@ -5,18 +5,19 @@ import (
 	"bytes"
 	"encoding/csv"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/jung-kurt/gofpdf"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"io/ioutil"
 	"net/http"
 	"reflect"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/jung-kurt/gofpdf"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func ExportToPdf(c *gin.Context, collection *mongo.Collection) {
@@ -99,14 +100,14 @@ func ExportToPdf(c *gin.Context, collection *mongo.Collection) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate PDF"})
 		return
 	}
-	fileName := generateFileName(collection.Name(), "pdf")
+	fileName := generateFileName(collection.Name(), ".pdf")
 
 	c.Header("Content-Type", "application/pdf")
 	c.Header("Content-Disposition", "attachment; filename="+fileName)
 	// Write the PDF content to the response
 	err = ioutil.WriteFile("./files/"+fileName, buf.Bytes(), 0644)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save PDF to local file"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "failed to save PDF to local file"})
 		return
 	}
 	c.Data(http.StatusOK, "application/pdf", buf.Bytes())
