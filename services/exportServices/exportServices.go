@@ -144,7 +144,7 @@ func ExportToCSV(c *gin.Context, collection *mongo.Collection) {
 		headers = make(map[string]bool)
 		for _, value := range result {
 			for key := range value {
-				if !(key == "_id" || key == "__v" || key == "password") {
+				if !(key == "_id" || key == "__v" || key == "password" || strings.Contains(key, "id") == true) {
 					headers[key] = true
 				}
 			}
@@ -163,7 +163,6 @@ func ExportToCSV(c *gin.Context, collection *mongo.Collection) {
 		var values []string
 		for _, header := range headerRow {
 			value := doc[header]
-
 			if value == nil || fmt.Sprintf("%v", value) == "[]" {
 				value = " "
 
@@ -178,14 +177,13 @@ func ExportToCSV(c *gin.Context, collection *mongo.Collection) {
 					value = fmt.Sprintf("%v", parsedDate.Format("02/01/2006 15:04:05.000"))
 				}
 			}
-			values = append(values, fmt.Sprintf("%v", value))
+			values = append(values, strings.ReplaceAll(fmt.Sprintf("%v", value), ",", ""))
 		}
 		data = append(data, strings.Join(values, ","))
 	}
 
 	// Convert data to CSV
 	csvData := strings.Join(data, "\n")
-
 	// Set the response headers
 	fileName := generateFileName(collection.Name(), ".csv")
 	c.Header("Content-Disposition", "attachment; filename="+fileName)
