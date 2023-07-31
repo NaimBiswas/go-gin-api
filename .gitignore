@@ -3,4 +3,4 @@
 /vendor
 # disable the exe build
 /*.exe*
-/files/*
+files/*
