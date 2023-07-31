@@ -106,20 +106,7 @@ func ExportToPdf(c *gin.Context, collection *mongo.Collection) {
 	c.Header("Content-Type", "application/pdf")
 	c.Header("Content-Disposition", "attachment; filename="+fileName)
 	// Write the PDF content to the response
-	folderPath := "./files" // Replace with the desired folder path
 
-	// Check if the folder exists
-	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
-		// Folder does not exist, create it
-		err := os.Mkdir(folderPath, 0755) // 0755 sets the permissions for the folder
-		if err != nil {
-			fmt.Printf("Error creating folder: %s\n", err)
-		} else {
-			fmt.Println("Folder created successfully.")
-		}
-	} else {
-		fmt.Println("Folder already exists.")
-	}
 	err = ioutil.WriteFile("./files/"+fileName, buf.Bytes(), 0644)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "failed to save PDF to local file"})
@@ -206,6 +193,19 @@ func generateFileName(name string, extension string) string {
 	formattedTimestamp := strings.ReplaceAll(strings.ReplaceAll(fmt.Sprint(timestamp), " ", "_"), ":", "_")
 
 	fileName := name + "_" + formattedTimestamp
+	folderPath := "./files/" + fileName + extension // Replace with the desired folder path
+	// Check if the folder exists
+	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
+		// Folder does not exist, create it
+		err := os.Mkdir(folderPath, 0755) // 0755 sets the permissions for the folder
+		if err != nil {
+			fmt.Printf("Error creating folder: %s\n", err)
+		} else {
+			fmt.Println("Folder created successfully.")
+		}
+	} else {
+		fmt.Println("Folder already exists.")
+	}
 	return fileName + extension
 }
 
