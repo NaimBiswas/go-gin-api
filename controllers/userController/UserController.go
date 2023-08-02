@@ -17,7 +17,7 @@ func GetUser(c *gin.Context) {
 	// Handle the GET request for "/user/get"
 
 	var users []Models.User
-	results, err := CommonServices.GetValues(userCollection, 10, 1)
+	results, _, err := CommonServices.GetValues(userCollection, 10, 1)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Status": http.StatusInternalServerError, "Message": "error", "Data": map[string]interface{}{"data": err.Error()}})

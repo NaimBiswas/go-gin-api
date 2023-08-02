@@ -2,10 +2,11 @@ package CommonServices
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,14 +17,15 @@ type User struct {
 	Email string `bson:"email" json:"email"`
 }
 
-func GetValues(collection *mongo.Collection, pageSize int, pageNumber int) (*mongo.Cursor, error) {
+func GetValues(collection *mongo.Collection, pageSize int, pageNumber int) (*mongo.Cursor, int64, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	pagination := getPagination(pageSize, pageNumber)
 	results, err := collection.Find(ctx, bson.M{}, pagination)
+	dataCount, err := collection.CountDocuments(ctx, bson.M{})
 
-	return results, err
+	return results, dataCount, err
 }
 
 func GetValueById(collection *mongo.Collection, pageSize, pageNumber int, id string) *mongo.SingleResult {

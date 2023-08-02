@@ -35,3 +35,27 @@ type UserColumnsForExport struct {
 	IsActive        bool               `json:"isActive" pdfFiled:"Is Active"`
 	IsEmailVerified bool               `json:"isEmailVerified" pdfFiled:"Is Email Verified"`
 }
+
+type ProductModel struct {
+	ID                 primitive.ObjectID `json:"_id" bson:"_id"`
+	Name               string             `json:"name"`
+	DiscountPrice      int                `json:"discountPrice"`
+	ProductDescription string             `json:"productDescription"`
+	ProductImage       string             `json:"productImage"`
+	MetaTitle          string             `json:"metaTitle"`
+	MetaKeys           string             `json:"metaKeys"`
+	MetaDescription    string             `json:"metaDescription"`
+	OriginPrice        int                `json:"originPrice"`
+	ManufacturerName   string             `json:"manufacturerName"`
+	ManufacturerBrand  string             `json:"manufacturerBrand"`
+	Price              int                `json:"price"`
+	Discount           int                `json:"discount"`
+	Category           struct {
+		CategoryID string `json:"categoryId"`
+		Name       string `json:"name"`
+	} `json:"category"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+
+	IsActive bool `json:"isActive"`
+}
