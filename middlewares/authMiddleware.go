@@ -7,11 +7,11 @@ import (
 )
 
 func VerifyUser(c *gin.Context) {
-	token := c.GetHeader("X-Authorization")
+	token := c.GetHeader("token")
 	if token == "" {
-		c.JSON(http.StatusForbidden, gin.H{
-			"error":   "Something went wrong",
-			"message": "Your are not authorize to access this resource",
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "Your are not authorize to access this resource",
+			"message": "Something went wrong",
 		})
 		c.Abort()
 		return
