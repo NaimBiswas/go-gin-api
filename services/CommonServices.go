@@ -24,6 +24,38 @@ func GetValues(collection *mongo.Collection, pageSize int, pageNumber int) (*mon
 	pagination := getPagination(pageSize, pageNumber)
 	results, err := collection.Find(ctx, bson.M{}, pagination)
 	dataCount, err := collection.CountDocuments(ctx, bson.M{})
+	// var results *mongo.Cursor
+	// var dataCount int64
+	// var resultsErr error
+	// var dataCountErr error
+
+	// // Use a WaitGroup to wait for both goroutines to complete
+	// var wg sync.WaitGroup
+	// wg.Add(2)
+
+	// // Fetch results using a goroutine
+	// go func() {
+	// 	defer wg.Done()
+	// 	results, resultsErr = collection.Find(ctx, bson.M{}, pagination)
+	// }()
+
+	// // Fetch data count using a goroutine
+	// go func() {
+	// 	defer wg.Done()
+	// 	dataCount, dataCountErr = collection.CountDocuments(ctx, bson.M{})
+	// }()
+
+	// // Wait for both goroutines to complete
+	// wg.Wait()
+
+	// // Check for errors
+	// if resultsErr != nil {
+	// 	return nil, 0, resultsErr
+	// }
+	// if dataCountErr != nil {
+	// 	return nil, 0, dataCountErr
+	// }
+
 
 	return results, dataCount, err
 }
