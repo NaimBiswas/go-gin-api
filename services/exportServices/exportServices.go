@@ -174,7 +174,7 @@ func ExportToCSV(c *gin.Context, collection *mongo.Collection) {
 					parsedDate := time.Unix(int64(val)/1000, 0)
 
 					// Format the time.Time object to the desired format "DD/MM/YYYY"
-					value = fmt.Sprintf("%v", parsedDate.Format("02/01/2006 15:04:05.000 UTC"))
+					value = fmt.Sprintf("%v", parsedDate.Format("02/01/2006 15:04:05.000 MST"))
 				}
 			}
 			values = append(values, strings.ReplaceAll(fmt.Sprintf("%v", value), ",", ""))
