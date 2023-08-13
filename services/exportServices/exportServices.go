@@ -144,7 +144,7 @@ func ExportToCSV(c *gin.Context, collection *mongo.Collection) {
 		headers = make(map[string]bool)
 		for _, value := range result {
 			for key := range value {
-				if !(key == "_id" || key == "__v" || key == "password" || strings.Contains(key, "id") == true) {
+				if !(key == "_id" || key == "__v" || key == "password" || strings.Contains(key, "id") == true || strings.Contains(key, "Id") == true) {
 					headers[key] = true
 				}
 			}
