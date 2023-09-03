@@ -59,3 +59,6 @@ type ProductModel struct {
 
 	IsActive bool `json:"isActive"`
 }
+
+type ImportedProductModel struct {
+}

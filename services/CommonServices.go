@@ -3,6 +3,7 @@ package CommonServices
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -56,7 +57,6 @@ func GetValues(collection *mongo.Collection, pageSize int, pageNumber int) (*mon
 	// 	return nil, 0, dataCountErr
 	// }
 
-
 	return results, dataCount, err
 }
 
@@ -103,4 +103,21 @@ func GetUserMails(c *gin.Context, collection *mongo.Collection) []string {
 		emails = append(emails, user.Email)
 	}
 	return emails
+}
+
+func GetPageAndLimit(c *gin.Context) (int, int, error) {
+	limit := c.Query("limit")
+	page := c.Query("page")
+
+	if limit == "" || page == "" {
+		limit = "10"
+		page = "1"
+	}
+	limitInNumber, err := strconv.Atoi(limit)
+	pageInNumber, err := strconv.Atoi(page)
+
+	if err != nil {
+		return 0, 0, err
+	}
+	return limitInNumber, pageInNumber, nil
 }
